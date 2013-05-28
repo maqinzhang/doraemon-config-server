@@ -9,7 +9,7 @@ package com.jd.doraemon.model;
  */
 public enum ConfigTypeEnum {
 	/**
-	 * Ò»°ãµÄÅäÖÃ
+	 * é»˜è®¤é…ç½®
 	 */
     DEFAULT,
     CLOSABL;

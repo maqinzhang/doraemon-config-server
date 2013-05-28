@@ -2,15 +2,15 @@ package com.jd.doraemon.model;
 
 public enum ConfigStatus {
 	/**
-	 * ĞÂ½¨µÄ
+	 * åˆå§‹æ–°å»ºçŠ¶æ€
 	 */
 	NEW,
 	/**
-	 * ¼¤»î×´Ì¬
+	 * æ¿€æ´»
 	 */
 	ACTIVE,
 	/**
-	 * ÒÑÉ¾³ı
+	 * å·²åˆ é™¤çŠ¶æ€
 	 */
 	DELETED;
 
