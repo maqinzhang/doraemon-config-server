@@ -1,6 +1,5 @@
 package com.jd.doraemon.server.listener;
-/**
- * 将配置信息进行实时同步的监听器
+/** 
  * @author luolishu
  *
  */

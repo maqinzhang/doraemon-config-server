@@ -27,7 +27,7 @@
 		<module>Doraemon-store</module>
 		<module>Doraemon-client-spring</module>
 		<module>Doraemon-model</module>
-		<module>Doraemon-transport</module> 
+		<module>Doraemon-transport</module>
 		<module>Doraemon-server-dao</module>
 		<module>Doraemon-server-domain</module>
 	</modules>
@@ -79,7 +79,7 @@
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>14.0.1</version>
-				
+
 			</dependency>
 
 		</dependencies>
@@ -115,6 +115,11 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version>
 			</plugin>
 		</plugins>
 	</build>

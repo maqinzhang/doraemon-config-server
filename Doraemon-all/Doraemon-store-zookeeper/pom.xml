@@ -10,11 +10,11 @@
 	<artifactId>Doraemon-store-zookeeper</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>saf</artifactId>
 			<version>1.0.8</version>
 		</dependency>
-
+ -->
 	</dependencies>
 </project>

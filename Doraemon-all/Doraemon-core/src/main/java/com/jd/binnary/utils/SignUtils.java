@@ -13,8 +13,7 @@ import java.util.List;
 public abstract class SignUtils {
 	static final String GET_VALUE_METHOD = "getValue";
 	
-	/**
-	 * 清除二进制中的某一位
+	/** 
 	 * @param value
 	 * @param signEnum
 	 * @return
@@ -25,7 +24,6 @@ public abstract class SignUtils {
 	}
 
 	/**
-	 * 判断某个位是否被设置
 	 * 
 	 * @param value
 	 * @param signEnum
@@ -37,7 +35,6 @@ public abstract class SignUtils {
 	}
 
 	/**
-	 * 添加某个位
 	 * 
 	 * @param value
 	 * @param signEnum
@@ -49,8 +46,7 @@ public abstract class SignUtils {
 	}
 
 	/**
-	 * 得到所有设置的位置
-	 * 
+	 *  
 	 * @param value
 	 * @param allEnums
 	 * @return

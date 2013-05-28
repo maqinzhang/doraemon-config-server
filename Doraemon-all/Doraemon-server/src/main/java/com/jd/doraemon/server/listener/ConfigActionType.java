@@ -9,15 +9,15 @@ package com.jd.doraemon.server.listener;
  */
 public enum ConfigActionType {
 	/**
-	 * ÐÂÔö
+	 * æ–°å»º
 	 */
 	CREATE, 
 	/**
-	 * ÐÞ¸Ä
+	 * ä¿®æ”¹
 	 */
 	MODIFIED, 
 	/**
-	 * É¾³ý
+	 * åˆ é™¤
 	 */
 	DELETE;
 
