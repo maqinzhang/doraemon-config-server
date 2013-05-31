@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<doraemon:application name="demo" groups="demogroup1,demogroup2"
+		server-name="defaultServer" protocal="tcp:udp:http" />
+	<doraemon:snapshot directory="c:/doraemon/snapshot"
+		syn_period_time="2000" />
+	<doraemon:threadpool type="FIXED" size="" />
+	<doraemon:listener
+		class="com.jd.doraemon.client.listener.StatusChangeListener" />
+	<doraemon:listener ref-bean="listenerTest" />
+	<doraemon:group name="demogroup1">
+		<doraemon:listener
+			class="com.jd.doraemon.client.listener.StatusChangeListener" />
+		<doraemon:listener ref-bean="listenerTest" />
+	</doraemon:group>
+	<doraemon:autowired>
+		<doraemon:inject class="com.jd.doraemon.client.annotations.Configuration" />
+	</doraemon:autowired>
+
+</beans>
