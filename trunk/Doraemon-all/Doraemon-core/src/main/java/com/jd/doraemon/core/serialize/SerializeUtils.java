@@ -3,6 +3,7 @@ package com.jd.doraemon.core.serialize;
 import java.io.IOException;
 
 import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -24,6 +25,12 @@ public abstract class SerializeUtils {
 	}
 
 	public static <T> T deSerialize(String content, Class<T> claz) {
-		return mapper.convertValue(content, claz);
+		try {
+			return mapper.readValue(content, claz);
+		}catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
