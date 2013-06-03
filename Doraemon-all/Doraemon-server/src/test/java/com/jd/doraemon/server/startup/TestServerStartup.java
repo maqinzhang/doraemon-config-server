@@ -43,6 +43,33 @@ public class TestServerStartup {
 			Thread.sleep(1000L);
 		}
 	}
+
+    @Test
+	public void testStartUpSyn() throws Exception {
+		String serverName = "test.config.server";
+		String group1 = "group1";
+		DefaultServerContainer container = new DefaultServerContainer(
+				serverName);
+		container.startup(null);
+		container.addGroup(group1);
+		ConfigurationService configurationService = new DefaultConfigurationService();
+
+		for (int i = 0;; i++) {
+		
+			/*ConfigurationItem item = new ConfigurationItem(group1);
+			item.setActionType(ConfigActionType.CREATE);
+			ConfigValue value = new ConfigValue();
+			item.setConfigValue(value);
+			value.setKey("key" + i);
+			value.setUpdateTime(new Date());
+			value.setValue("value " + i);
+			value.setVersion(1L);
+			configurationService.create(item);
+			System.out.println("send msg="+item);*/
+			Thread.sleep(10000L);
+		}
+
+	}
     @Test
 	public void testStartUp() throws Exception {
 		String serverName = "test.config.server";
@@ -61,9 +88,35 @@ public class TestServerStartup {
 			item.setConfigValue(value);
 			value.setKey("key" + i);
 			value.setUpdateTime(new Date());
+			value.setValue("valu```e " + i);
+			value.setVersion(222L);
+			configurationService.create(item);
+			System.out.println("send msg="+item);
+			Thread.sleep(100L);
+		}
+
+	}
+    @Test
+	public void testStartUpRemove() throws Exception {
+		String serverName = "test.config.server";
+		String group1 = "group1";
+		DefaultServerContainer container = new DefaultServerContainer(
+				serverName);
+		container.startup(null);
+		container.addGroup(group1);
+		ConfigurationService configurationService = new DefaultConfigurationService();
+
+		for (int i = 0;; i++) {
+		
+			ConfigurationItem item = new ConfigurationItem(group1);
+			item.setActionType(ConfigActionType.DELETE);
+			ConfigValue value = new ConfigValue();
+			item.setConfigValue(value);
+			value.setKey("key" + i);
+			value.setUpdateTime(new Date());
 			value.setValue("value " + i);
 			value.setVersion(1L);
-			configurationService.create(item);
+			configurationService.remove(item);
 			System.out.println("send msg="+item);
 			Thread.sleep(5000L);
 		}
