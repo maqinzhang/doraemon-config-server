@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<doraemon:application name="demo" groups="demogroup1,demogroup2" /> 
+<doraemon:threadpool type="FIXED" size="" /> 
+<doraemon:server name="defaultServer" address="jgroups://127.0.0.1;jgroups://127.0.0.2;http://127.0.0.1:8080" /> 
+<doraemon:listener class="com.jd.doraemon.client.listener.StatusChangeListener"/>
+
+</beans>
