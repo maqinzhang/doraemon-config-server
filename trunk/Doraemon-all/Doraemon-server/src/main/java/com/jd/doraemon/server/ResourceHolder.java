@@ -22,4 +22,5 @@ public interface ResourceHolder {
 	static final Map<String, GroupClusters> groupClustersMap = new HashMap<String, GroupClusters>();
 	static final Map<String, RpcInvoker> rpcInvokerMap = new HashMap<String, RpcInvoker>();
 	static final Map<String, Snapshot> snapshotMap = new HashMap<String, Snapshot>();
+	
 }

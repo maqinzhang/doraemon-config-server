@@ -3,12 +3,19 @@
  */
 package com.jd.doraemon.server.rpc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.blocks.RequestOptions;
+import org.jgroups.blocks.ResponseMode;
 import org.jgroups.blocks.RpcDispatcher;
+import org.jgroups.util.Rsp;
+import org.jgroups.util.RspList;
+
+import com.jd.doraemon.core.cluster.ServerInfo;
 
 /**
  * @author luolishu
@@ -28,13 +35,15 @@ public class RpcInvoker {
 
 	public String getGroupFileDigest(Address dest, String group) {
 		try {
-			RequestOptions requestOptions = new RequestOptions();
-
+			RequestOptions requestOptions = new RequestOptions(ResponseMode.GET_FIRST, 3000);
+			rpcDispatcher.start();
 			return rpcDispatcher.callRemoteMethod(dest, "getGroupFileDigest",
 					new Object[] { group }, parameterTypes, requestOptions);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			rpcDispatcher.stop();
 		}
 		return null;
 	}
@@ -42,12 +51,15 @@ public class RpcInvoker {
 	public Properties getGroupProperties(Address dest, String group) {
 
 		try {
-			RequestOptions requestOptions = new RequestOptions();
+			rpcDispatcher.start();
+			RequestOptions requestOptions = new RequestOptions(ResponseMode.GET_FIRST, 3000);
 			return rpcDispatcher.callRemoteMethod(dest, "getGroupProperties",
 					new Object[] { group }, parameterTypes, requestOptions);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			rpcDispatcher.stop();
 		}
 		return null;
 	}
@@ -55,15 +67,46 @@ public class RpcInvoker {
 	public String getProperty(Address dest, String group, String key) {
 
 		try {
-			RequestOptions requestOptions = new RequestOptions();
+			rpcDispatcher.start();
+			RequestOptions requestOptions = new RequestOptions(ResponseMode.GET_FIRST, 3000);
 			return rpcDispatcher.callRemoteMethod(dest, "getProperty",
 					new Object[] { group, key }, parameterTypes2,
 					requestOptions);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			rpcDispatcher.stop();
 		}
 		return null;
+	}
+
+	public List<ServerInfo> getAllServerInfos(String group) {
+		try {
+			rpcDispatcher.start();
+			RequestOptions requestOptions = new RequestOptions(
+					ResponseMode.GET_ALL, 3000);
+
+			RspList<ServerInfo> responseList = rpcDispatcher.callRemoteMethods(
+					rpcDispatcher.getChannel().getView().getMembers(),
+					"getServerInfo", new Object[] { group }, parameterTypes,
+					requestOptions);
+			if (responseList != null) {
+				List<ServerInfo> results = new ArrayList<ServerInfo>();
+				for (Rsp<ServerInfo> rsp : responseList) {
+					results.add(rsp.getValue());
+				}
+				return results;
+			}
+			return null;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			rpcDispatcher.stop();
+		}
+		return null;
+
 	}
 
 }

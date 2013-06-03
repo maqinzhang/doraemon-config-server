@@ -1,8 +1,13 @@
 package com.jd.doraemon.server;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.jd.doraemon.core.cluster.ServerInfo;
+import com.jd.doraemon.core.cluster.ServerInfo.ServerType;
 
 /**
  * @author luolishu
@@ -16,7 +21,7 @@ public abstract class BaseServerContainer implements ServerContainer {
 	protected String serverName;
 	protected Set<String> groups = new HashSet<String>();
 	protected ResourceManager resourceManager;
-	protected boolean running=false;
+	protected boolean running = false;
 
 	public BaseServerContainer() {
 		this.setContainer(this);
@@ -33,10 +38,12 @@ public abstract class BaseServerContainer implements ServerContainer {
 	public String getServerName() {
 		return serverName;
 	}
+
 	@Override
 	public void addGroup(String group) {
 		groups.add(group);
 		resourceManager.addGroup(group);
 	}
+
 
 }
