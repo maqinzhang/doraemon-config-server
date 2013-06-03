@@ -8,11 +8,17 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.jd.doraemon.client.GroupConfiguration;
-import com.jd.doraemon.client.SerializeUtils;
+import com.jd.doraemon.client.Reloadable;
+import com.jd.doraemon.core.serialize.ConfigValue;
+import com.jd.doraemon.core.serialize.SerializeUtils;
 
-public class DefaultGroupConfiguration implements GroupConfiguration {
+public class DefaultGroupConfiguration implements GroupConfiguration,Reloadable {
 	private Map<String,ConfigValue> cachedMap=Collections.unmodifiableMap(new HashMap<String,ConfigValue>());
-
+	private String groupName;
+	public DefaultGroupConfiguration(String groupName){
+		this.groupName=groupName;
+	}
+	
 	@Override
 	public String get(String key) {
 		ConfigValue valueObj=cachedMap.get(key);
@@ -37,13 +43,21 @@ public class DefaultGroupConfiguration implements GroupConfiguration {
 	}
 	public synchronized void reload(Properties properties){
 		Set<Entry<Object, Object>> entrySet=properties.entrySet();
-		Map newMap=new HashMap<String,ConfigValue>();
-		for(Entry entry:entrySet){
+		Map<String,ConfigValue> newMap=new HashMap<String,ConfigValue>();
+		for(Entry<Object, Object> entry:entrySet){
 			String key=entry.getKey().toString();
 			String v=entry.getValue().toString();
 			newMap.put(key, SerializeUtils.deSerialize(v, ConfigValue.class));
 		}  
 		this.cachedMap=newMap;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 	
 	
