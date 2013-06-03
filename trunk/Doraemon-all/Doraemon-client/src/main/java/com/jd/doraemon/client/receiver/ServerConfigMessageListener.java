@@ -38,6 +38,9 @@ public class ServerConfigMessageListener extends ReceiverAdapter implements
 		}*/
 		 
 		System.out.println("================="+msg.getObject());
+		if(!(msg.getObject() instanceof ConfigurationEvent)){
+			return;
+		}
 		ConfigurationEvent event = (ConfigurationEvent) msg.getObject();
 		receive(event);
 

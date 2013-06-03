@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -35,16 +36,19 @@ import com.jd.doraemon.client.ConfigurationException;
 import com.jd.doraemon.client.GroupConfiguration;
 import com.jd.doraemon.client.RemoteConfiguration;
 import com.jd.doraemon.client.RemoteReloadable;
+import com.jd.doraemon.client.ResourceHolder;
 import com.jd.doraemon.client.TransferType;
 import com.jd.doraemon.client.TransportProtocal;
 import com.jd.doraemon.client.factory.ConfigurationFactory;
 import com.jd.doraemon.client.factory.DefaultConfigurationFactory;
 import com.jd.doraemon.client.factory.ServiceFactory;
 import com.jd.doraemon.client.listener.ConfigurationListener;
-import com.jd.doraemon.client.listener.EventListenerExecutor;
 import com.jd.doraemon.client.receiver.ConfigMessageReceiver;
 import com.jd.doraemon.client.remote.RemoteServerService;
 import com.jd.doraemon.client.rpc.RpcInvokeService;
+import com.jd.doraemon.client.rpc.RpcInvoker;
+import com.jd.doraemon.core.cluster.GroupClusters;
+import com.jd.doraemon.core.cluster.ServerInfo;
 import com.jd.doraemon.core.snapshot.FileSnapshot;
 import com.jd.doraemon.core.snapshot.FileSnapshotUtils;
 import com.jd.doraemon.core.snapshot.Snapshot;
@@ -58,8 +62,9 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 	protected static final Logger logger = LoggerFactory
 			.getLogger(DoraemonConfigurationContainer.class);
 
-	protected long initialDelay = 20000;
-	protected long synPeriodTime = 30000;
+	protected long initialDelay = 5000;
+	protected long synPeriodTime = 300;
+	protected long synServerPeriodTime = 300;
 	protected ThreadPoolExecutor threadPoolExecutor;
 	protected ConfigurationFactory configurationFactory = new DefaultConfigurationFactory();
 	protected RemoteConfiguration remoteConfiguration = null;
@@ -202,18 +207,42 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 	@Override
 	public synchronized void startup(Properties properties) {
 		try {
+
+			initThreadPool();
 			initConfiguration();
 			initLoadSnapShot();
 			reloadLocal();// read configuration from local
 			initNullGroups();// init the null groups
 			initService();
 			initMessageReceiver();// init the jgroup channels
+			initClusters();
 			initSynRemote();
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//
 
+	}
+
+	private void initClusters() {
+
+		for (String group : groups) {
+			ServerInfo serverInfo = this.collectServerInfo();
+			serverInfo.setAddress(RPC_CHANNELS_MAP.get(group).getAddress());
+			GroupClusters groupClusters = new GroupClusters();
+			groupClusters.setName(group);
+			groupClusters.setSelf(serverInfo);
+			ResourceHolder.groupClustersMap.put(group, groupClusters);
+		}
+		ServerListTask command = new ServerListTask();
+		scheduledThreadPool.scheduleAtFixedRate(command, initialDelay,
+				synServerPeriodTime, TimeUnit.MILLISECONDS);
+	}
+
+	private void initThreadPool() {
+		this.threadPoolExecutor = (ThreadPoolExecutor) Executors
+				.newFixedThreadPool(20);
 	}
 
 	private void initService() {
@@ -323,9 +352,17 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 		String serverDigest = remoteServerService.getGroupFileDigest(group);
 		Snapshot snapshot = getSnapshot(group);
 		if (snapshot != null) {
+			logger.error("group=" + group + ",server:" + serverDigest
+					+ " client:" + snapshot.getFileDigest());
+		} else {
+			logger.error("group=" + group + ",server:" + serverDigest
+					+ " client:null");
+		}
+		if (snapshot != null) {
 			if (!StringUtils.equals(serverDigest, snapshot.getFileDigest())) {
 				snapshot.compareAndflush();
 			}
+
 			return StringUtils.equals(serverDigest, snapshot.getFileDigest());
 		}
 		return false;
@@ -340,7 +377,12 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 
 	public final synchronized void synGroupWithRemote(String group) {
 		Properties p = getServerGroupProperties(group);
+		if (p == null) {
+			logger.error("remote properties is null!group=" + group);
+			return;
+		}
 		((RemoteReloadable) remoteConfiguration).reload(group, p);
+		this.getSnapshot(group).update(p);
 	}
 
 	private class SynWithRemoteTask implements Runnable {
@@ -360,6 +402,47 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 
 	}
 
+	private class ServerListTask implements Runnable {
 
+		@Override
+		public void run() {
+
+			Set<String> groupSet = groups;
+			for (String group : groupSet) {
+				try {
+					RpcInvoker invoker = rpcInvokerMap.get(group);
+					List<ServerInfo> serverInfoList = invoker
+							.getAllServerInfos(group);
+					if (serverInfoList == null)
+						return;
+					GroupClusters clusters = groupClustersMap.get(group);
+					for (ServerInfo server : serverInfoList) {
+						if (server == null) {
+							continue;
+						}
+
+						if (server.isClient()) {
+							clusters.addConfigClient(server);
+						}
+						if (server.isServer()) {
+							clusters.addConfigSever(server);
+						}
+						if (server.isMaster()) {
+							clusters.setMaster(server);
+						}
+					}
+					if (clusters.getMaster() == null
+							&& !clusters.getServers().isEmpty()) {
+						clusters.setMaster(clusters.getServers().iterator()
+								.next());
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
 
 }
