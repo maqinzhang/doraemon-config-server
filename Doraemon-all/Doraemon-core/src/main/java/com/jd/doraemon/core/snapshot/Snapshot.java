@@ -33,7 +33,6 @@ public interface Snapshot {
 	 */
 	public void remove(String key);
 	/**
-	 * ¸üĞÂƒÈÈİ
 	 * @param properties
 	 */
 	public void update(Properties properties);
