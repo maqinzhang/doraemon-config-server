@@ -16,6 +16,10 @@
 			<version>3.3.0.Final</version>
 			<!-- <scope>provided</scope> -->
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.config</groupId>
+			<artifactId>Doraemon-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
