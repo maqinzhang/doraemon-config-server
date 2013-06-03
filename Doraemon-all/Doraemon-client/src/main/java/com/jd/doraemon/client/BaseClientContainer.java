@@ -1,6 +1,8 @@
 package com.jd.doraemon.client;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,14 +14,18 @@ import java.util.Set;
 import com.jd.doraemon.client.listener.ConfigurationListener;
 import com.jd.doraemon.client.listener.EventListenerExecutor;
 import com.jd.doraemon.client.listener.ThreadPoolAsynEventListenerExecutor;
+import com.jd.doraemon.core.cluster.ServerInfo;
+import com.jd.doraemon.core.cluster.ServerInfo.ServerType;
 
 /**
  * @author luolishu
  * 
  */
-public abstract class BaseClientContainer implements ConfigurationContainer {
+public abstract class BaseClientContainer implements ConfigurationContainer,
+		ResourceHolder {
 	protected String directoryPath = System.getProperty("java.io.tmpdir")
-			+ File.separator + "doraemon" +File.separator+"client"+ File.separator + "groups";
+			+ File.separator + "doraemon" + File.separator + "client"
+			+ File.separator + "groups";
 
 	protected Map<String, List<ConfigurationListener>> groupListenersMap = new HashMap<String, List<ConfigurationListener>>();
 	protected List<ConfigurationListener> globalListeners = new ArrayList<ConfigurationListener>();
@@ -67,9 +73,24 @@ public abstract class BaseClientContainer implements ConfigurationContainer {
 		listeners.add(listener);
 
 	}
+
+	protected ServerInfo collectServerInfo() {
+		ServerInfo serverInfo = new ServerInfo(ServerType.CLIENT);
+
+		try {
+			InetAddress inetAddress = InetAddress.getLocalHost();
+			serverInfo.setIpAddress(inetAddress);
+			serverInfo.setHostName(inetAddress.getHostName());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return serverInfo;
+	}
+
 	@Override
 	public void setListenerExcecutor(EventListenerExecutor listenerExcecutor) {
-		this.eventListenerExecutor=listenerExcecutor;
+		this.eventListenerExecutor = listenerExcecutor;
 	}
 
 	public Set<String> getGroupNames() {
