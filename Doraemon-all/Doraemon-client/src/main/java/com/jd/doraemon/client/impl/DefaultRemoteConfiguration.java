@@ -9,14 +9,20 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.jd.doraemon.client.GroupConfiguration;
+import com.jd.doraemon.client.Reloadable;
 import com.jd.doraemon.client.RemoteConfiguration;
+import com.jd.doraemon.client.RemoteReloadable;
 
 /**
  * @author luolishu
  * 
  */
-public class DefaultRemoteConfiguration implements RemoteConfiguration {
+public class DefaultRemoteConfiguration implements RemoteConfiguration ,RemoteReloadable{
 	Map<String, GroupConfiguration> groupsMap = null;
+	
+	public DefaultRemoteConfiguration(Map<String, GroupConfiguration> groupsMap){
+		this.groupsMap=groupsMap;
+	}
 
 	@Override
 	public List<GroupConfiguration> getAllGroups() {
@@ -50,14 +56,7 @@ public class DefaultRemoteConfiguration implements RemoteConfiguration {
 
 	public synchronized void reload(String group, Properties properties) {
 		GroupConfiguration groupConfig = getGroup(group);
-		if (groupConfig != null) {
-			((DefaultGroupConfiguration) groupConfig).reload(properties);
-		} else {
-			DefaultGroupConfiguration newConfig = new DefaultGroupConfiguration();
-			groupsMap.put(group, newConfig);
-			newConfig.reload(properties);
-		}
-
+		((Reloadable) groupConfig).reload(properties);
 	}
 
 }

@@ -3,6 +3,8 @@
  */
 package com.jd.doraemon.client.listener;
 
+import com.jd.doraemon.core.event.ConfigurationEvent;
+
 /**
  * @author luolishu
  *
@@ -13,7 +15,7 @@ public class StatusChangeListener implements ConfigurationListener {
 	@Override
 	public void handleEvent(ConfigurationEvent event) {
 		String key=null;
-		String value=null;
+		String value=null;/*
 		switch(event.getActionType()){
 		case DELETE:						
 			if("booleanFlag".equals(key)){
@@ -25,7 +27,7 @@ public class StatusChangeListener implements ConfigurationListener {
 				StatusConfig.booleanFlag=Boolean.valueOf(true);
 			}
 			break;
-		}
+		}*/
 
 	}
 

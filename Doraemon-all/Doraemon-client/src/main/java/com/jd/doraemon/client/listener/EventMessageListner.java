@@ -10,7 +10,6 @@ import com.jd.doraemon.core.event.ConfigurationEvent;
  * @author luolishu
  *
  */
-public interface ListenerTaskFactory {
-	ConfigurationListenerTask create(ConfigurationListener listener,
-			ConfigurationEvent event);
+public interface EventMessageListner {
+	void receive(ConfigurationEvent event);
 }
