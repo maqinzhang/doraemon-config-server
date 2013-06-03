@@ -30,6 +30,7 @@
 		<module>Doraemon-transport</module>
 		<module>Doraemon-server-dao</module>
 		<module>Doraemon-server-domain</module>
+		<module>Doraemon-Server-Spring</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
