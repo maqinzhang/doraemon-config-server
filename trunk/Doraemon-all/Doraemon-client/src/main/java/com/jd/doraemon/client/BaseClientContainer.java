@@ -23,9 +23,7 @@ import com.jd.doraemon.core.cluster.ServerInfo.ServerType;
  */
 public abstract class BaseClientContainer implements ConfigurationContainer,
 		ResourceHolder {
-	protected String directoryPath = System.getProperty("java.io.tmpdir")
-			+ File.separator + "doraemon" + File.separator + "client"
-			+ File.separator + "groups";
+	
 
 	protected Map<String, List<ConfigurationListener>> groupListenersMap = new HashMap<String, List<ConfigurationListener>>();
 	protected List<ConfigurationListener> globalListeners = new ArrayList<ConfigurationListener>();
@@ -36,7 +34,9 @@ public abstract class BaseClientContainer implements ConfigurationContainer,
 			Arrays.asList(new String[] { "default" }));
 	protected String appName = "client.name";
 	protected String serverName = "doraemon.config.server";
-
+	protected String directoryPath = System.getProperty("java.io.tmpdir")
+			+ File.separator + "doraemon" + File.separator + "client"
+			+ File.separator + "groups"+File.separator+appName;
 	public BaseClientContainer() {
 		this.setContainer(this);
 	}

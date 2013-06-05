@@ -14,20 +14,20 @@ import org.jgroups.JChannel;
 import com.jd.doraemon.client.ResourceHolder;
 import com.jd.doraemon.client.listener.ConfigurationListener;
 import com.jd.doraemon.client.listener.EventListenerExecutor;
-import com.jd.doraemon.client.rpc.RpcInvoker;
+import com.jd.doraemon.client.rpc.ClientRpcInvoker;
 
 /**
  * @author luolishu
  * 
  */
-public class HttpPullConfigMessageReceiver implements ConfigMessageReceiver, ResourceHolder {
+public class HttpResourceManager implements ResourceManager, ResourceHolder {
 	EventListenerExecutor listenerExecutor;
 	List<ConfigurationListener> listeners;
 	String serverName;
 	String groups[];
 	Map<String, List<ConfigurationListener>> groupListnersMap = new HashMap<String, List<ConfigurationListener>>();
 
-	public HttpPullConfigMessageReceiver() { 
+	public HttpResourceManager() { 
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class HttpPullConfigMessageReceiver implements ConfigMessageReceiver, Res
 	private void initRpcModule() {
 		Set<Map.Entry<String, JChannel>> entrySet = RPC_CHANNELS_MAP.entrySet();
 		for (Map.Entry<String, JChannel> entry : entrySet) {
-			RpcInvoker rpcInvoker = new RpcInvoker(entry.getValue());
+			ClientRpcInvoker rpcInvoker = new ClientRpcInvoker(entry.getValue());
 			rpcInvokerMap.put(entry.getKey(), rpcInvoker);
 		}
 

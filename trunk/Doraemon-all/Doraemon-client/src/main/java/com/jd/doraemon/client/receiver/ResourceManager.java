@@ -7,7 +7,7 @@ package com.jd.doraemon.client.receiver;
  * @author luolishu
  *
  */
-public interface ConfigMessageReceiver {
+public interface ResourceManager {
 	
 	public void shutdown();
 	
