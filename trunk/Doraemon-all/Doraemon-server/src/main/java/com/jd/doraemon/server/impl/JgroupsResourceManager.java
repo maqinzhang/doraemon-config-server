@@ -5,7 +5,13 @@ package com.jd.doraemon.server.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.jgroups.JChannel;
 
@@ -15,13 +21,28 @@ import com.jd.doraemon.core.cluster.ServerInfo.ServerType;
 import com.jd.doraemon.server.ContainerUtils;
 import com.jd.doraemon.server.ResourceManager;
 import com.jd.doraemon.server.ServerContainer;
-import com.jd.doraemon.server.rpc.RpcInvoker;
+import com.jd.doraemon.server.rpc.ServerRpcInvoker;
 
 /**
  * @author luolishu
  * 
  */
 public class JgroupsResourceManager implements ResourceManager {
+	protected long initialDelay = 5000;
+	protected long synPeriodTime = 300;
+	protected long synServerPeriodTime = 300;
+	protected ScheduledExecutorService scheduledThreadPool = Executors
+			.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread thread = new Thread(r);
+					thread.setDaemon(true);
+					thread.setName("syn_server_list");
+					return thread;
+				}
+
+			});
 
 	@Override
 	public void addGroup(String group) {
@@ -48,11 +69,18 @@ public class JgroupsResourceManager implements ResourceManager {
 			initMessageGroupChannels();
 			initRpcGroupChannels();
 			initClusters();
+			initSysnServerInfoTask();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	private void initSysnServerInfoTask() {
+		ServerListTask command = new ServerListTask();
+		scheduledThreadPool.scheduleAtFixedRate(command, initialDelay,
+				synServerPeriodTime, TimeUnit.MILLISECONDS);
 	}
 
 	protected ServerInfo collectServerInfo() {
@@ -83,10 +111,13 @@ public class JgroupsResourceManager implements ResourceManager {
 
 	private void addGroupServerInfo(String group) {
 		ServerInfo serverInfo = this.collectServerInfo();
+		serverInfo.setMaster(true);
 		GroupClusters groupClusters = new GroupClusters();
 		groupClusters.setName(group);
 		groupClusters.setSelf(serverInfo);
 		serverInfo.setAddress(RPC_CHANNELS_MAP.get(group).getAddress());
+		groupClusters.addConfigSever(serverInfo);
+		groupClusters.setMaster(serverInfo);
 		groupClustersMap.put(group, groupClusters);
 	}
 
@@ -94,7 +125,7 @@ public class JgroupsResourceManager implements ResourceManager {
 		if (rpcInvokerMap.containsKey(group))
 			return;
 		JChannel channel = RPC_CHANNELS_MAP.get(group);
-		RpcInvoker invoker = new RpcInvoker(channel);
+		ServerRpcInvoker invoker = new ServerRpcInvoker(channel);
 		rpcInvokerMap.put(group, invoker);
 	}
 
@@ -147,6 +178,46 @@ public class JgroupsResourceManager implements ResourceManager {
 		for (String group : groups) {
 			this.createGroupRpcChannel(group);
 		}
+	}
+
+	private class ServerListTask implements Runnable {
+
+		@Override
+		public void run() {
+			Set<Entry<String, ServerRpcInvoker>> invokerEntrys = rpcInvokerMap
+					.entrySet();
+			for (Entry<String, ServerRpcInvoker> entry : invokerEntrys) {
+				String group = entry.getKey();
+				ServerRpcInvoker invoker = entry.getValue();
+				List<ServerInfo> serverInfoList = invoker
+						.getAllServerInfos(group);
+
+				if (serverInfoList == null)
+					return;
+				GroupClusters clusters = groupClustersMap.get(group);
+				for (ServerInfo server : serverInfoList) {
+					if (server == null) {
+						continue;
+					}
+
+					if (server.isClient()) {
+						clusters.addConfigClient(server);
+					}
+					if (server.isServer()) {
+						clusters.addConfigSever(server);
+					}
+					if (server.isMaster()) {
+						clusters.setMaster(server);
+					}
+				}
+				if (clusters.getMaster() == null
+						&& !clusters.getServers().isEmpty()) {
+					clusters.setMaster(clusters.getServers().iterator().next());
+				}
+			}
+
+		}
+
 	}
 
 }
