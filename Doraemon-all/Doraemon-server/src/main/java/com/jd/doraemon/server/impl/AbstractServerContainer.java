@@ -51,7 +51,7 @@ public abstract class AbstractServerContainer extends BaseServerContainer
 	public void startup(Properties properties) {
 
 		reloadLocal();
-
+		resourceManager.init();
 		running = true;
 	}
 
