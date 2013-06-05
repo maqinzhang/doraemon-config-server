@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jd.doraemon.client.ResourceHolder;
-import com.jd.doraemon.client.rpc.RpcInvoker;
+import com.jd.doraemon.client.rpc.ClientRpcInvoker;
 import com.jd.doraemon.core.cluster.GroupClusters;
 
 /**
@@ -24,7 +24,7 @@ public class JgroupsRemoteServerService implements RemoteServerService,
 
 	@Override
 	public String getGroupFileDigest(String group) {
-		RpcInvoker rpcInvoker = this.rpcInvokerMap.get(group);
+		ClientRpcInvoker rpcInvoker = this.rpcInvokerMap.get(group);
 		Address dest = findServerAddress(group);
 		if (dest == null) {
 			return null;
@@ -46,7 +46,7 @@ public class JgroupsRemoteServerService implements RemoteServerService,
 
 	@Override
 	public Properties getGroupProperties(String group) {
-		RpcInvoker rpcInvoker = this.rpcInvokerMap.get(group);
+		ClientRpcInvoker rpcInvoker = this.rpcInvokerMap.get(group);
 		Address dest = findServerAddress(group);
 		if (dest == null) {
 			return null;
@@ -56,7 +56,7 @@ public class JgroupsRemoteServerService implements RemoteServerService,
 
 	@Override
 	public String getServerProperty(String group, String key) {
-		RpcInvoker rpcInvoker = this.rpcInvokerMap.get(group);
+		ClientRpcInvoker rpcInvoker = this.rpcInvokerMap.get(group);
 		Address dest = findServerAddress(group);
 		if (dest == null) {
 			return null;

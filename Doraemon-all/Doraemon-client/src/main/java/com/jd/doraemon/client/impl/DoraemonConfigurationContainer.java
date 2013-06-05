@@ -43,10 +43,9 @@ import com.jd.doraemon.client.factory.ConfigurationFactory;
 import com.jd.doraemon.client.factory.DefaultConfigurationFactory;
 import com.jd.doraemon.client.factory.ServiceFactory;
 import com.jd.doraemon.client.listener.ConfigurationListener;
-import com.jd.doraemon.client.receiver.ConfigMessageReceiver;
+import com.jd.doraemon.client.receiver.ResourceManager;
 import com.jd.doraemon.client.remote.RemoteServerService;
-import com.jd.doraemon.client.rpc.RpcInvokeService;
-import com.jd.doraemon.client.rpc.RpcInvoker;
+import com.jd.doraemon.client.rpc.ClientRpcInvoker;
 import com.jd.doraemon.core.cluster.GroupClusters;
 import com.jd.doraemon.core.cluster.ServerInfo;
 import com.jd.doraemon.core.snapshot.FileSnapshot;
@@ -63,20 +62,19 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 			.getLogger(DoraemonConfigurationContainer.class);
 
 	protected long initialDelay = 5000;
-	protected long synPeriodTime = 300;
-	protected long synServerPeriodTime = 300;
+	protected long synPeriodTime = 5000;
+	protected long synServerPeriodTime = 5000;
 	protected ThreadPoolExecutor threadPoolExecutor;
 	protected ConfigurationFactory configurationFactory = new DefaultConfigurationFactory();
 	protected RemoteConfiguration remoteConfiguration = null;
 	protected RemoteServerService remoteServerService;
-	protected ConfigMessageReceiver configMessageReceiver;
-	protected RpcInvokeService rpcInvokeService;
+	protected ResourceManager resourceManager; 
 	protected Map<String, Snapshot> snapshotMap = new HashMap<String, Snapshot>();
 	protected List<ConfigurationListener> listeners = new ArrayList<ConfigurationListener>();
 	protected TransportProtocal protocal = TransportProtocal.TCP;
 	protected TransferType transferType = TransferType.PUSH;
 	protected ScheduledExecutorService scheduledThreadPool = Executors
-			.newSingleThreadScheduledExecutor(new ThreadFactory() {
+			.newScheduledThreadPool(2, new ThreadFactory() {
 
 				@Override
 				public Thread newThread(Runnable r) {
@@ -246,7 +244,7 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 	}
 
 	private void initService() {
-		this.configMessageReceiver = ServiceFactory.createReceiver(protocal,
+		this.resourceManager = ServiceFactory.createReceiver(protocal,
 				transferType);
 		this.remoteServerService = ServiceFactory.createRemoteServerService(
 				protocal, transferType);
@@ -258,8 +256,8 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 	}
 
 	protected void initMessageReceiver() {
-		if (configMessageReceiver != null) {
-			configMessageReceiver.init();
+		if (resourceManager != null) {
+			resourceManager.init();
 		}
 	}
 
@@ -312,8 +310,8 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 		if (scheduledThreadPool != null) {
 			scheduledThreadPool.shutdown();
 		}
-		if (configMessageReceiver != null) {
-			configMessageReceiver.shutdown();
+		if (resourceManager != null) {
+			resourceManager.shutdown();
 		}
 
 	}
@@ -410,7 +408,7 @@ public class DoraemonConfigurationContainer extends BaseClientContainer
 			Set<String> groupSet = groups;
 			for (String group : groupSet) {
 				try {
-					RpcInvoker invoker = rpcInvokerMap.get(group);
+					ClientRpcInvoker invoker = rpcInvokerMap.get(group);
 					List<ServerInfo> serverInfoList = invoker
 							.getAllServerInfos(group);
 					if (serverInfoList == null)

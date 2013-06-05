@@ -19,14 +19,14 @@ import com.jd.doraemon.core.cluster.ServerInfo;
  * @author luolishu
  * 
  */
-public class RpcInvoker {
-	static final StatusCommands commands = new StatusCommands();
+public class ClientRpcInvoker {
+	static final ClientCommands commands = new ClientCommands();
 	static short i = 0;
 	RpcDispatcher rpcDispatcher;
 	Class<?> parameterTypes[] = { String.class };
 	Class<?> parameterTypes2[] = { String.class, String.class };
 
-	public RpcInvoker(JChannel jchannel) {
+	public ClientRpcInvoker(JChannel jchannel) {
 		i++;
 		this.rpcDispatcher = new RpcDispatcher(jchannel, commands);
 	}

@@ -15,17 +15,17 @@ import com.jd.doraemon.client.ConfigurationUtils;
 import com.jd.doraemon.client.ResourceHolder;
 import com.jd.doraemon.client.listener.ConfigurationListener;
 import com.jd.doraemon.client.listener.EventListenerExecutor;
-import com.jd.doraemon.client.rpc.RpcInvoker;
+import com.jd.doraemon.client.rpc.ClientRpcInvoker;
 
 /**
  * @author luolishu
  * 
  */
-public class PushConfigMessageReceiver implements ConfigMessageReceiver,
+public class JgroupsResourceManager implements ResourceManager,
 		ResourceHolder {
 
 
-	public PushConfigMessageReceiver() {
+	public JgroupsResourceManager() {
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class PushConfigMessageReceiver implements ConfigMessageReceiver,
 	private void initRpcModule() {
 		Set<Map.Entry<String, JChannel>> entrySet = RPC_CHANNELS_MAP.entrySet();
 		for (Map.Entry<String, JChannel> entry : entrySet) {
-			RpcInvoker rpcInvoker = new RpcInvoker(entry.getValue());
+			ClientRpcInvoker rpcInvoker = new ClientRpcInvoker(entry.getValue());
 			rpcInvokerMap.put(entry.getKey(), rpcInvoker);
 		}
 
